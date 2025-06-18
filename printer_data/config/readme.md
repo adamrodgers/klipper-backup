@@ -1,28 +1,116 @@
-# SV08 BASIC CONFIGS
-Here you can find some slightly modified but almost stock configs for the SV08. Since we went mainline Klipper some changes had to be made.
-It will restore as many as the stock Sovol functions as possible and will give you a good starting point.
+# Sovol SV08 Klipper Configuration
 
-## Printer cfg
-- Please make sure you add the correct serials under the [mcu] and [mcu extra_mcu] configs (check your Sovol printer.cfg backup for this!).
-    - Didn't backup your Sovol printer.cfg? You can find it with this command in SSH: `ls /dev/serial/by-id/*` or use KIAUH for this.
-- Please uncomment the display import(s) you want to use at the top of the printer.cfg.
-- Run currents have been changed to more sensible values (Sovol confused max rating with RMS ratings it seems). Printer now runs more quiet and cooler.
-- `max_accel_to_decel` is deprecated, so added new `minimum_cruise_ratio` value.
-- Changed the `MCU_fan` to only run when the printer is doing something (either steppers homed or hotend/bed heating) with a 5 minute timeout.
-- Changed the `[homing_override]` to go back to center first before homing the other axis.
+## Printer Specifications
 
-## Macros
-All the .sh scripts have been commented out (if you want that functionality please add it yourself). Changed have been made to the START_PRINT macro so it will now accept your bed & nozzle temperature from the slicer (and use the bed temperature during the init).
-- If you want an Auto Z Offset before each print, please uncomment the Z_OFFSET_CALIBRATION in the START_PRINT macro.
-- To pass along those temperatures: go to OrcaSlicer -> Edit the printer settings -> Machine G-code -> change your 'START_PRINT' line to this: `START_PRINT EXTRUDER_TEMP=[nozzle_temperature_initial_layer] BED_TEMP=[bed_temperature_initial_layer_single]`
-- Added a global variable caled 'heat_soak_time' (default 0), please change accordingly. You can also pass along a variable to skip the heatsoak from the slicer, the same as above but add e.g. `HEATSOAK=0` <sub>(0 as in false, not 0 minutes, you pass along you want heatsoak or not. The heatsoak time is configured as a global var in your macros.cfg)</sub>
-- Changed the START_PRINT so it does a 'Home Z' after the QGL (which in theory can change your z-offset) to get more consistent results.
+**Sovol SV08** - Modified 3D Printer Setup
+- Sovol glass/metal enclosure with insulated walls
+- Flashed with Klipper mainline firmware
+- **Microswiss Flowtech Hotend** upgrade
+- **BTT Eddy Duo** (low mount configuration for EddyNG tap probing)
+- **BME280 sensor** connected to Raspberry Pi Pico (Klipper-flashed) for chamber temperature monitoring
+- **Noctua NF-A4x10 24V PWM fan** on mainboard with MCU heatsink cooling
+- **BTT Voron 2.4 bed** with upgraded bed heater and PEI sheet
+- Relocated filament run-out sensor
+- Relocated filament spool holder
+- **'Nevermore' style activated carbon air filters** for fume extraction
 
-## Menu
-The menu has been changed in such a way it's a reduced and somewhat more basic menu based on the Sovol menu. Some things might not work or are removed. *Still a work in progress.*
+---
 
-## Crowsnest
-Default Sovol crowsnest .conf is added as well. Please add the webcam in Mainsail -> Interface Settings -> Webcams.
+## Configuration Overview
 
-## Pico
-Adding a pico to the SV08 for a chamber thermistor
+### 1. **LED Status System** (`options/led/hotend.cfg`)
+
+Implemented a comprehensive LED status system using the hotend RGB LED to provide visual feedback for printer operations:
+
+- **15+ distinct status colors** for different printer states
+- **Context-aware LED control** that changes automatically during operations
+- **Chamber heating pulse animation** with smooth color transitions
+- **Smart override protection** prevents conflicts during special operations
+
+**Status Colors:**
+- 🟢 Ready, Homing - Green
+- 🔴 Busy, Error - Red variations  
+- 🟠 Heating - Orange
+- ⚪ Printing - Bright white
+- 🟣 Leveling - Purple
+- 🔵 Cleaning - Blue
+- 🟡 Paused - Yellow
+- Animated orange-to-red pulse during chamber heating
+
+### 2. **Chamber Temperature Control** (`macros.cfg`)
+
+Added advanced chamber management following RepRap M141/M191 standards:
+
+- **M141/M191 commands** for chamber temperature control
+- **Intelligent heating logic** with automatic bed temperature adjustment
+- **Material-specific presets**: PLA (0°C), PETG (30°C), ASA/ABS/TPU (35°C)
+- **Progress tracking** with milestone reporting during heating
+- **Animated LED feedback** during chamber conditioning
+- **Nevermore fan integration** with different speeds for heating vs. printing
+
+### 3. **Enhanced Logging Framework** (`macros.cfg`)
+
+Built a unified logging system for consistent status reporting:
+
+- **Multi-channel output** to display, console, and LED simultaneously
+- **Categorized messaging** (status, warning, error) with appropriate LED responses
+- **Smart LED management** that respects active animations
+- **Comprehensive operation tracking** throughout print workflows
+
+### 4. **Improved Print Workflow** (`macros.cfg`)
+
+Enhanced the entire print process with better automation and feedback:
+
+- **Parallel heating optimization** for faster startup
+- **Material-aware chamber conditioning** with automatic temperature selection
+- **Smart heat soak timing** that accounts for actual heating duration
+- **Filament detection integration** with automatic error handling
+- **Nevermore fan control** based on material requirements
+- **Detailed status reporting** for every operation phase
+
+### 5. **Probe System with Retry Logic** (`macros.cfg`)
+
+Added automatic retry capabilities for improved reliability:
+
+- **Configurable retry attempts** with progressive delays
+- **Detailed attempt tracking** and reporting
+- **Automatic failure handling** with print cancellation
+- **EddyNG tap integration** with enhanced error recovery
+- **Two-stage QGL process** with coarse and fine tolerance passes
+
+### 6. **Intelligent Fan Management** (`macros.cfg`)
+
+Implemented smart fan control throughout the system:
+
+- **Dual-speed Nevermore operation**: slower during chamber heating, faster during printing
+- **Material-based activation**: disabled for PLA, active for enclosed materials
+- **Automatic shutdown delays**: 2-minute cooldown after print completion
+- **Coordinated operation** with chamber temperature control
+
+### 7. **Centralized Configuration** (`macros.cfg`)
+
+Organized all settings into a global variable system:
+
+- **Material-specific chamber temperatures** in lookup tables
+- **Configurable retry parameters** for all probe operations
+- **Standardized parking positions** for different scenarios
+- **Filament handling parameters** for loading/unloading operations
+- **Fan speed presets** for various operational modes
+
+### 8. **Hardware Integration Updates** (`printer.cfg`)
+
+Updated configuration for new hardware components:
+
+- **BME280 chamber sensor** integration via extra MCU
+- **Nevermore fans** configured as controllable generic fans
+- **Enhanced filament sensor** settings for better reliability
+- **Noctua MCU fan** with temperature-based control
+- **BTT Eddy probe** with calibrated coefficients and drive currents
+- **Performance tuning**: increased max acceleration to 25,000 mm/s²
+- **Optimized stepper settings** and TMC driver configuration
+
+---
+
+## Results
+
+This configuration provides visual status feedback through LED colors, automated chamber conditioning for enclosed printing, intelligent retry logic for critical operations, and material-specific automation throughout the entire print workflow. The system now handles most operations automatically while keeping me informed of progress and any issues through comprehensive logging and LED status indicators.
