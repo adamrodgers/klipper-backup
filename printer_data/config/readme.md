@@ -6,13 +6,13 @@
 - Sovol glass/metal enclosure with insulated walls
 - Flashed with Klipper mainline firmware
 - **Microswiss Flowtech Hotend** upgrade
-- **Beacon Contact probe** with contact-based probing
-- **Klipper Expander MCU** for fan control and chamber temperature monitoring
-- **Mean Well LRS-350-24 and RS-25-5 power supplies** with DIN rail mounting
-- **BTT Voron 2.4 bed** with kinematic mount, upgraded bed heater and PEI sheet
-- **BTT SFS2 smart filament sensor** for advanced runout detection
+- **BTT Eddy Duo** (low mount configuration for EddyNG tap probing)
+- **BME280 sensor** connected to Raspberry Pi Pico (Klipper-flashed) for chamber temperature monitoring
+- **Noctua NF-A4x10 24V PWM fan** on mainboard with MCU heatsink cooling
+- **BTT Voron 2.4 bed** with upgraded bed heater and PEI sheet
+- Relocated filament run-out sensor
 - Relocated filament spool holder
-- **'The Filter'** activated carbon air filtration system
+- **'Nevermore' style activated carbon air filters** for fume extraction
 
 ---
 
@@ -20,7 +20,7 @@
 
 ### 1. **LED Status System** (`options/led/hotend.cfg`)
 
-Comprehensive LED status system using the hotend RGB LED for visual feedback:
+Implemented a comprehensive LED status system using the hotend RGB LED to provide visual feedback for printer operations:
 
 - **15+ distinct status colors** for different printer states
 - **Context-aware LED control** that changes automatically during operations
@@ -39,18 +39,18 @@ Comprehensive LED status system using the hotend RGB LED for visual feedback:
 
 ### 2. **Chamber Temperature Control** (`macros.cfg`)
 
-Advanced chamber management following RepRap M141/M191 standards:
+Added advanced chamber management following RepRap M141/M191 standards:
 
 - **M141/M191 commands** for chamber temperature control
 - **Intelligent heating logic** with automatic bed temperature adjustment
 - **Material-specific presets**: PLA (0°C), PETG (30°C), ASA/ABS/TPU (35°C)
 - **Progress tracking** with milestone reporting during heating
 - **Animated LED feedback** during chamber conditioning
-- **'The Filter' integration** with different speeds for heating vs. printing
+- **Nevermore fan integration** with different speeds for heating vs. printing
 
 ### 3. **Enhanced Logging Framework** (`macros.cfg`)
 
-Unified logging system for consistent status reporting:
+Built a unified logging system for consistent status reporting:
 
 - **Multi-channel output** to display, console, and LED simultaneously
 - **Categorized messaging** (status, warning, error) with appropriate LED responses
@@ -59,37 +59,37 @@ Unified logging system for consistent status reporting:
 
 ### 4. **Improved Print Workflow** (`macros.cfg`)
 
-Enhanced print process with better automation and feedback:
+Enhanced the entire print process with better automation and feedback:
 
 - **Parallel heating optimization** for faster startup
 - **Material-aware chamber conditioning** with automatic temperature selection
 - **Smart heat soak timing** that accounts for actual heating duration
-- **BTT SFS2 filament detection** with advanced error handling
-- **'The Filter' fan control** based on material requirements
+- **Filament detection integration** with automatic error handling
+- **Nevermore fan control** based on material requirements
 - **Detailed status reporting** for every operation phase
 
 ### 5. **Probe System with Retry Logic** (`macros.cfg`)
 
-Automatic retry capabilities for improved reliability:
+Added automatic retry capabilities for improved reliability:
 
 - **Configurable retry attempts** with progressive delays
 - **Detailed attempt tracking** and reporting
 - **Automatic failure handling** with print cancellation
-- **Beacon Contact integration** with enhanced error recovery
+- **EddyNG tap integration** with enhanced error recovery
 - **Two-stage QGL process** with coarse and fine tolerance passes
 
 ### 6. **Intelligent Fan Management** (`macros.cfg`)
 
-Smart fan control throughout the system:
+Implemented smart fan control throughout the system:
 
-- **Dual-speed 'The Filter' operation**: slower during chamber heating, faster during printing
+- **Dual-speed Nevermore operation**: slower during chamber heating, faster during printing
 - **Material-based activation**: disabled for PLA, active for enclosed materials
 - **Automatic shutdown delays**: 2-minute cooldown after print completion
 - **Coordinated operation** with chamber temperature control
 
 ### 7. **Centralized Configuration** (`macros.cfg`)
 
-Organized settings in a global variable system:
+Organized all settings into a global variable system:
 
 - **Material-specific chamber temperatures** in lookup tables
 - **Configurable retry parameters** for all probe operations
@@ -101,11 +101,11 @@ Organized settings in a global variable system:
 
 Updated configuration for new hardware components:
 
-- **Klipper Expander** chamber sensor and fan control integration
-- **'The Filter'** air filtration system configuration
-- **BTT SFS2 smart filament sensor** for enhanced detection
-- **Beacon Contact probe** with calibrated coefficients
-- **Mean Well power supplies** for improved power delivery
+- **BME280 chamber sensor** integration via extra MCU
+- **Nevermore fans** configured as controllable generic fans
+- **Enhanced filament sensor** settings for better reliability
+- **Noctua MCU fan** with temperature-based control
+- **BTT Eddy probe** with calibrated coefficients and drive currents
 - **Performance tuning**: increased max acceleration to 25,000 mm/s²
 - **Optimized stepper settings** and TMC driver configuration
 
@@ -113,4 +113,4 @@ Updated configuration for new hardware components:
 
 ## Results
 
-This configuration provides visual status feedback through LED colors, automated chamber conditioning for enclosed printing, intelligent retry logic for critical operations, and material-specific automation throughout the entire print workflow. The system handles most operations automatically while providing comprehensive status updates through logging and LED indicators.
+This configuration provides visual status feedback through LED colors, automated chamber conditioning for enclosed printing, intelligent retry logic for critical operations, and material-specific automation throughout the entire print workflow. The system now handles most operations automatically while keeping me informed of progress and any issues through comprehensive logging and LED status indicators.
